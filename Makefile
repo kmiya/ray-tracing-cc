@@ -1,7 +1,10 @@
-.PHONY: all build run format lint test clean
+.PHONY: all build release run format lint test clean
 
 all build:
 	bazel build //...
+
+release:
+	bazel build -c opt //...
 
 run:
 	bazel run rt -- $(ARGS)
@@ -11,6 +14,7 @@ format:
 
 lint:
 	bazel build --config=lint //...
+	cat "$(shell bazel info bazel-bin)"/src/*.AspectRulesLintClangTidy.out
 
 test:
 	bazel test //...
