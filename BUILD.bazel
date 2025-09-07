@@ -1,0 +1,6 @@
+exports_files([".clang-tidy"])
+
+alias(
+    name = "rt",
+    actual = "//src:ray_tracer",
+)
