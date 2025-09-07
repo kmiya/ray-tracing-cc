@@ -1,7 +1,16 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+cc_library(
+    name = "library",
+    hdrs = [
+        "color.hh",
+        "vec3.hh",
+    ],
+)
 
 cc_binary(
     name = "ray_tracer",
     srcs = ["main.cc"],
     visibility = ["//visibility:public"],
+    deps = [":library"],
 )
