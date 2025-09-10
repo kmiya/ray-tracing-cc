@@ -15,8 +15,10 @@ Checks: >
   performance-*,
   portability-*,
   readability-*,
+  -llvm-header-guard,
   -readability-identifier-length,
-  -llvm-header-guard
+  -readability-magic-numbers,
+  -cppcoreguidelines-avoid-magic-numbers
 WarningsAsErrors: ""
 HeaderFileExtensions:
   - h

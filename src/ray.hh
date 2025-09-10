@@ -7,8 +7,7 @@ class Ray {
   Ray() = default;
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  Ray(const Point3& origin, const Vec3& direction)
-      : orig_(origin), dir_(direction) {}
+  Ray(const Point3& origin, const Vec3& direction) : orig_(origin), dir_(direction) {}
 
   [[nodiscard]] auto Origin() const -> const Point3& { return orig_; }
   [[nodiscard]] auto Direction() const -> const Vec3& { return dir_; }

@@ -33,9 +33,7 @@ class Vec3 {
 
   auto operator/=(double t) -> Vec3& { return *this *= 1 / t; }
 
-  [[nodiscard]] auto Length() const -> double {
-    return std::sqrt(LengthSquared());
-  }
+  [[nodiscard]] auto Length() const -> double { return std::sqrt(LengthSquared()); }
 
   [[nodiscard]] auto LengthSquared() const -> double {
     return (e_[0] * e_[0]) + (e_[1] * e_[1]) + (e_[2] * e_[2]);
@@ -67,9 +65,7 @@ inline auto operator*(const Vec3& u, const Vec3& v) -> Vec3 {
   return {u[0] * v[0], u[1] * v[1], u[2] * v[2]};
 }
 
-inline auto operator*(double t, const Vec3& v) -> Vec3 {
-  return {t * v[0], t * v[1], t * v[2]};
-}
+inline auto operator*(double t, const Vec3& v) -> Vec3 { return {t * v[0], t * v[1], t * v[2]}; }
 
 inline auto operator*(const Vec3& v, double t) -> Vec3 { return t * v; }
 
