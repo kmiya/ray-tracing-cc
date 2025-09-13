@@ -1,0 +1,38 @@
+#pragma once
+
+#include <memory>
+#include <vector>
+
+#include "hittable.hh"
+#include "ray.hh"
+
+class HittableList : public Hittable {
+ public:
+  HittableList() = default;
+  explicit HittableList(const std::shared_ptr<Hittable>& object) { Add(object); }
+
+  auto Objects() -> std::vector<std::shared_ptr<Hittable>> { return objects_; }
+
+  auto Clear() -> void { objects_.clear(); }
+
+  auto Add(const std::shared_ptr<Hittable>& object) -> void { objects_.push_back(object); }
+
+  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+  auto Hit(const Ray& r, double ray_tmin, double ray_tmax, HitRecord& rec) const -> bool override {
+    HitRecord temp_rec;
+    bool hit_anything = false;
+    double closest_so_far = ray_tmax;
+
+    for (const auto& object : objects_) {
+      if (object->Hit(r, ray_tmin, closest_so_far, temp_rec)) {
+        hit_anything = true;
+        closest_so_far = temp_rec.T();
+        rec = temp_rec;
+      }
+    }
+    return hit_anything;
+  }
+
+ private:
+  std::vector<std::shared_ptr<Hittable>> objects_;
+};

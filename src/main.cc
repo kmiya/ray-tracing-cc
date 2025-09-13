@@ -1,30 +1,20 @@
 #include <algorithm>
-#include <cmath>
 #include <iostream>
+#include <memory>
 
 #include "color.hh"
+#include "common.hh"
+#include "hittable.hh"
+#include "hittable_list.hh"
 #include "ray.hh"
+#include "sphere.hh"
 #include "vec3.hh"
 
 namespace {
-auto HitSphere(const Point3& center, const double radius, const Ray& r) -> double {
-  const Vec3 oc = center - r.Origin();
-  const double a = r.Direction().LengthSquared();
-  const double h = Dot(r.Direction(), oc);
-  const double c = oc.LengthSquared() - (radius * radius);
-  const double discriminant = (h * h) - (a * c);
-
-  if (discriminant < 0) {
-    return -1.0;
-  }
-  return (h - std::sqrt(discriminant)) / a;
-}
-
-constexpr auto RayColor(const Ray& r) -> Color {
-  const double t = HitSphere(Point3{0, 0, -1}, 0.5, r);
-  if (t > 0.0) {
-    const Vec3 n = UnitVector(r.At(t) - Vec3{0, 0, -1});
-    return 0.5 * Color{n.X() + 1, n.Y() + 1, n.Z() + 1};
+auto RayColor(const Ray& r, const Hittable& world) -> Color {
+  HitRecord rec;
+  if (world.Hit(r, 0, kInfinity, rec)) {
+    return 0.5 * (rec.Normal() + Color(1, 1, 1));
   }
   const Vec3 unit_direction = UnitVector(r.Direction());
   const double a = 0.5 * (unit_direction.Y() + 1.0);
@@ -34,13 +24,20 @@ constexpr auto RayColor(const Ray& r) -> Color {
 constexpr const double kAspectRatio = 16.0 / 9.0;
 }  // namespace
 
+// TODO: Remove NOLINT
+// NOLINTNEXTLINE(bugprone-exception-escape)
 auto main() -> int {
-  // Image
+  //// Image
   constexpr const int kImageWidth = 400;
   // Calculate the image height, and ensure that it's at least 1.
   constexpr const int kImageHight = std::max(1, static_cast<int>(kImageWidth / kAspectRatio));
 
-  // Camera
+  //// World
+  HittableList world;
+  world.Add(std::make_shared<Sphere>(Point3(0, 0, -1), 0.5));
+  world.Add(std::make_shared<Sphere>(Point3(0, -100.5, -1), 100));
+
+  //// Camera
   constexpr const double kFocalLength = 1.0;
   constexpr const double kViewportHeight = 2.0;
   constexpr const double kViewportWidth =
@@ -70,7 +67,8 @@ auto main() -> int {
       const Vec3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
       const Vec3 ray_direction = pixel_center - camera_center;
       const Ray r(camera_center, ray_direction);
-      const Color pixel_color = RayColor(r);
+
+      const Color pixel_color = RayColor(r, world);
       WriteColor(std::cout, pixel_color);
     }
   }
