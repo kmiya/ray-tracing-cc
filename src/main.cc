@@ -13,7 +13,7 @@
 namespace {
 auto RayColor(const Ray& r, const Hittable& world) -> Color {
   HitRecord rec;
-  if (world.Hit(r, 0, kInfinity, rec)) {
+  if (world.Hit(r, Interval(0, kInfinity), rec)) {
     return 0.5 * (rec.Normal() + Color(1, 1, 1));
   }
   const Vec3 unit_direction = UnitVector(r.Direction());
@@ -44,8 +44,7 @@ auto main() -> int {
       kViewportHeight * static_cast<double>(kImageWidth) / kImageHight;
   const Point3 camera_center{0, 0, 0};
 
-  // Calculate the vectors across the horizontal and down the vertical viewport
-  // edges.
+  // Calculate the vectors across the horizontal and down the vertical viewport edges.
   const Vec3 viewport_u{kViewportWidth, 0, 0};
   const Vec3 viewport_v{0, -kViewportHeight, 0};
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "interval.hh"
 #include "ray.hh"
 #include "vec3.hh"
 
@@ -40,6 +41,5 @@ class Hittable {
   auto operator=(const Hittable&&) -> Hittable& = delete;
 
   virtual ~Hittable() = default;
-  virtual auto Hit(const Ray& r, double ray_tmin, double ray_tmax, HitRecord& rec) const
-      -> bool = 0;
+  virtual auto Hit(const Ray& r, const Interval& ray_t, HitRecord& rec) const -> bool = 0;
 };
