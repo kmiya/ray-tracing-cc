@@ -15,5 +15,6 @@ auto main() -> int {
   Camera cam;
   cam.AspectRatio(16.0 / 9.0);
   cam.ImageWidth(400);
+  cam.SamplePerPixel(100);
   cam.Render(world);
 }

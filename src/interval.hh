@@ -12,6 +12,7 @@ class Interval {
   [[nodiscard]] auto Size() const -> double { return max_ - min_; }
   [[nodiscard]] auto Contains(double x) const -> bool { return min_ <= x && x <= max_; }
   [[nodiscard]] auto Surrounds(double x) const -> bool { return min_ < x && x < max_; }
+  [[nodiscard]] auto Clamp(double x) const -> double { return std::clamp(x, min_, max_); }
 
   static auto Empty() -> const Interval& {
     static const Interval kEmptyInterval(+kInfinity, -kInfinity);

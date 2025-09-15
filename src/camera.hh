@@ -19,12 +19,12 @@ class Camera {
     for (int j = 0; j < image_height_; j++) {
       std::clog << "\rScanlines remaining: " << (image_height_ - j) << ' ' << std::flush;
       for (int i = 0; i < image_width_; i++) {
-        const Vec3 pixel_center = pixel00_loc_ + (i * pixel_delta_u_) + (j * pixel_delta_v_);
-        const Vec3 ray_direction = pixel_center - center_;
-        const Ray r(center_, ray_direction);
-
-        const Color pixel_color = RayColor(r, world);
-        WriteColor(std::cout, pixel_color);
+        Color pixel_color(0, 0, 0);
+        for (int sample = 0; sample < samples_per_pixel_; sample++) {
+          const Ray r = GetRay(i, j);
+          pixel_color += RayColor(r, world);
+        }
+        WriteColor(std::cout, pixel_samples_scale_ * pixel_color);
       }
     }
     std::clog << "\rDone.                 \n";
@@ -34,9 +34,12 @@ class Camera {
 
   constexpr auto ImageWidth(int width) -> void { image_width_ = width; }
 
+  constexpr auto SamplePerPixel(int sample) -> void { samples_per_pixel_ = sample; }
+
  private:
   auto Initialize() -> void {
     image_height_ = std::max(1, static_cast<int>(image_width_ / aspect_ratio_));
+    pixel_samples_scale_ = 1.0 / samples_per_pixel_;
 
     // Determine viewport dimensions.
     constexpr const double kFocalLength = 1.0;
@@ -68,7 +71,26 @@ class Camera {
     return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
   }
 
+  auto GetRay(int i, int j) -> Ray {
+    // Construct a camera ray originating from the origin and directed at randomly sampled
+    // point around the pixel location (i, j).
+    const Vec3 offset = SampleSquare();
+    const Vec3 pixel_sample =
+        pixel00_loc_ + ((i + offset.X()) * pixel_delta_u_) + ((j + offset.Y()) * pixel_delta_v_);
+
+    const Vec3 ray_origin = center_;
+    const Vec3 ray_direction = pixel_sample - ray_origin;
+    return {ray_origin, ray_direction};
+  }
+
+  [[nodiscard]] static auto SampleSquare() -> Vec3 {
+    // Return the vector to a aa random point in the [-.5,-.5]-[+.5,+.5] unit square.
+    return {RandomDouble() - 0.5, RandomDouble() - 0.5, 0};
+  }
+
   double aspect_ratio_{};
+  int samples_per_pixel_{};
+  double pixel_samples_scale_{};  // Color scale factor for a sum of pixel samples
   int image_width_{};
   int image_height_{};      // Rendered image height
   Point3 center_{0, 0, 0};  // Camera center
