@@ -4,6 +4,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "common.hh"
+
 class Vec3 {
  public:
   Vec3() : e_{0, 0, 0} {}
@@ -37,6 +39,14 @@ class Vec3 {
 
   [[nodiscard]] auto LengthSquared() const -> double {
     return (e_[0] * e_[0]) + (e_[1] * e_[1]) + (e_[2] * e_[2]);
+  }
+
+  [[nodiscard]] static auto Random() -> Vec3 {
+    return {RandomDouble(), RandomDouble(), RandomDouble()};
+  }
+
+  [[nodiscard]] static auto Random(double min, double max) -> Vec3 {
+    return {RandomDouble(min, max), RandomDouble(min, max), RandomDouble(min, max)};
   }
 
  private:
@@ -81,3 +91,21 @@ inline auto Cross(const Vec3& u, const Vec3& v) -> Vec3 {
 }
 
 inline auto UnitVector(const Vec3& v) -> Vec3 { return v / v.Length(); }
+
+inline auto RandomUnitVector() -> Vec3 {
+  while (true) {
+    const Vec3 p = Vec3::Random(-1, 1);
+    const double len_sq = p.LengthSquared();
+    if (1e-160 < len_sq && len_sq <= 1) {
+      return p / sqrt(len_sq);
+    }
+  }
+}
+
+inline auto RandomOnHemisphere(const Vec3& normal) -> Vec3 {
+  Vec3 on_unit_hemisphere = RandomUnitVector();
+  if (Dot(on_unit_hemisphere, normal) > 0.0) {  // In the same hemisphere as the normal
+    return on_unit_hemisphere;
+  }
+  return -on_unit_hemisphere;
+}

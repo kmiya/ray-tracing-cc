@@ -61,10 +61,12 @@ class Camera {
     pixel00_loc_ = viewport_upper_left + 0.5 * (pixel_delta_u_ + pixel_delta_v_);
   }
 
+  // NOLINTNEXTLINE(misc-no-recursion)
   static auto RayColor(const Ray& r, const Hittable& world) -> Color {
     HitRecord rec;
     if (world.Hit(r, Interval(0, kInfinity), rec)) {
-      return 0.5 * (rec.Normal() + Color(1, 1, 1));
+      const Vec3 direction = RandomOnHemisphere(rec.Normal());
+      return 0.5 * RayColor(Ray(rec.P(), direction), world);
     }
     const Vec3 unit_direction = UnitVector(r.Direction());
     const double a = 0.5 * (unit_direction.Y() + 1.0);

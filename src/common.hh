@@ -14,3 +14,8 @@ inline auto RandomDouble() -> double {
   static std::uniform_real_distribution<double> distribution{0.0, 1.0};
   return distribution(generator);
 }
+
+inline auto RandomDouble(double min, double max) -> double {
+  // Returns a random real in [min,max).
+  return min + ((max - min) * RandomDouble());
+}
