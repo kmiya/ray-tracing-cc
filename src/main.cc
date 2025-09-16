@@ -13,8 +13,9 @@ auto main() -> int {
   world.Add(std::make_shared<Sphere>(Point3(0, -100.5, -1), 100));
 
   Camera cam;
-  cam.AspectRatio(16.0 / 9.0);
-  cam.ImageWidth(400);
-  cam.SamplePerPixel(100);
+  cam.SetAspectRatio(16.0 / 9.0);
+  cam.SetImageWidth(400);
+  cam.SetSamplePerPixel(100);
+  cam.SetMaxDepth(50);
   cam.Render(world);
 }

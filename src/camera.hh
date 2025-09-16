@@ -22,7 +22,7 @@ class Camera {
         Color pixel_color(0, 0, 0);
         for (int sample = 0; sample < samples_per_pixel_; sample++) {
           const Ray r = GetRay(i, j);
-          pixel_color += RayColor(r, world);
+          pixel_color += RayColor(r, max_depth_, world);
         }
         WriteColor(std::cout, pixel_samples_scale_ * pixel_color);
       }
@@ -30,11 +30,12 @@ class Camera {
     std::clog << "\rDone.                 \n";
   }
 
-  constexpr auto AspectRatio(double ratio) -> void { aspect_ratio_ = ratio; }
+  constexpr auto SetAspectRatio(double ratio) -> void { aspect_ratio_ = ratio; }
 
-  constexpr auto ImageWidth(int width) -> void { image_width_ = width; }
+  constexpr auto SetImageWidth(int width) -> void { image_width_ = width; }
 
-  constexpr auto SamplePerPixel(int sample) -> void { samples_per_pixel_ = sample; }
+  constexpr auto SetSamplePerPixel(int sample) -> void { samples_per_pixel_ = sample; }
+  constexpr auto SetMaxDepth(int depth) -> void { max_depth_ = depth; }
 
  private:
   auto Initialize() -> void {
@@ -62,11 +63,16 @@ class Camera {
   }
 
   // NOLINTNEXTLINE(misc-no-recursion)
-  static auto RayColor(const Ray& r, const Hittable& world) -> Color {
+  static auto RayColor(const Ray& r, int depth, const Hittable& world) -> Color {
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if (depth <= 0) {
+      return {0, 0, 0};
+    }
+
     HitRecord rec;
     if (world.Hit(r, Interval(0, kInfinity), rec)) {
       const Vec3 direction = RandomOnHemisphere(rec.Normal());
-      return 0.5 * RayColor(Ray(rec.P(), direction), world);
+      return 0.5 * RayColor(Ray(rec.P(), direction), depth - 1, world);
     }
     const Vec3 unit_direction = UnitVector(r.Direction());
     const double a = 0.5 * (unit_direction.Y() + 1.0);
@@ -90,10 +96,11 @@ class Camera {
     return {RandomDouble() - 0.5, RandomDouble() - 0.5, 0};
   }
 
-  double aspect_ratio_{};
-  int samples_per_pixel_{};
+  double aspect_ratio_{1.0};
+  int samples_per_pixel_{10};
+  int max_depth_{10};
   double pixel_samples_scale_{};  // Color scale factor for a sum of pixel samples
-  int image_width_{};
+  int image_width_{100};
   int image_height_{};      // Rendered image height
   Point3 center_{0, 0, 0};  // Camera center
   Point3 pixel00_loc_;      // Location of pixel (0, 0)
