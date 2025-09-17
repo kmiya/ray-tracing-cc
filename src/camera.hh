@@ -70,7 +70,7 @@ class Camera {
     }
 
     HitRecord rec;
-    if (world.Hit(r, Interval(0, kInfinity), rec)) {
+    if (world.Hit(r, Interval(0.001, kInfinity), rec)) {
       const Vec3 direction = RandomOnHemisphere(rec.Normal());
       return 0.5 * RayColor(Ray(rec.P(), direction), depth - 1, world);
     }
