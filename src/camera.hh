@@ -71,7 +71,7 @@ class Camera {
 
     HitRecord rec;
     if (world.Hit(r, Interval(0.001, kInfinity), rec)) {
-      const Vec3 direction = RandomOnHemisphere(rec.Normal());
+      const Vec3 direction = rec.Normal() + RandomUnitVector();
       return 0.5 * RayColor(Ray(rec.P(), direction), depth - 1, world);
     }
     const Vec3 unit_direction = UnitVector(r.Direction());
