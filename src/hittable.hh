@@ -4,6 +4,8 @@
 #include "ray.hh"
 #include "vec3.hh"
 
+class Material;
+
 class HitRecord {
  public:
   HitRecord() = default;
@@ -24,12 +26,14 @@ class HitRecord {
     front_face_ = Dot(r.Direction(), outward_normal) < 0;
     normal_ = front_face_ ? outward_normal : -outward_normal;
   }
+  auto SetMaterial(const std::shared_ptr<Material> mat) -> void { mat_ = mat; }
 
  private:
   Point3 p_;
   Vec3 normal_;
   double t_{};
   bool front_face_{};
+  std::shared_ptr<Material> mat_;
 };
 
 class Hittable {
