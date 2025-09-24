@@ -1,10 +1,10 @@
 .PHONY: all build release run format lint test clean
 
 all build:
-	bazel build //...
-
-release:
 	bazel build -c opt //...
+
+debug:
+	bazel build -c dbg //...
 
 run:
 	bazel run rt -- $(ARGS)
@@ -21,3 +21,27 @@ test:
 
 clean:
 	bazel clean
+
+asan:
+	bazel build --config=asan //...
+
+msan:
+	bazel build --config=msan //...
+
+ubsan:
+	bazel build --config=ubsan //...
+
+tysan:
+	bazel build --config=tysan //...
+
+asan-run: asan
+	bazel run rt -- $(ARGS) > /dev/null
+
+msan-run: msan
+	bazel run rt -- $(ARGS) > /dev/null
+
+ubsan-run: ubsan
+	bazel run rt -- $(ARGS) > /dev/null
+
+tysan-run: tysan
+	bazel run rt -- $(ARGS) > /dev/null

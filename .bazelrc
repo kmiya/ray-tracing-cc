@@ -11,4 +11,24 @@ build --copt=-Werror
 
 build:lint --aspects=//tools:linters.bzl%clang_tidy
 
+build:use_sanitizer --copt=-O1
+build:use_sanitizer --copt=-fno-omit-frame-pointer
+
+build:asan --config=use_sanitizer
+build:asan --copt=-fsanitize=address
+build:asan --linkopt=-fsanitize=address
+
+build:msan --config=use_sanitizer
+build:msan --copt=-fsanitize=memory
+build:msan --linkopt=-fsanitize=memory
+
+build:ubsan --config=use_sanitizer
+build:ubsan --copt=-fsanitize=undefined
+build:ubsan --linkopt=-fsanitize=undefined
+build:ubsan --linkopt=-fsanitize-link-c++-runtime
+
+build:tysan --config=use_sanitizer
+build:tysan --copt=-fsanitize=type
+build:tysan --linkopt=-fsanitize=type
+
 coverage --combined_report=lcov
