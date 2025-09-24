@@ -9,6 +9,7 @@ cc_library(
         "hittable.hh",
         "hittable_list.hh",
         "interval.hh",
+        "material.hh",
         "ray.hh",
         "sphere.hh",
         "vec3.hh",

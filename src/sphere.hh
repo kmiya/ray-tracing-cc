@@ -8,10 +8,8 @@
 
 class Sphere : public Hittable {
  public:
-  Sphere(const Point3& center, const double radius)
-      : center_(center), radius_(std::fmax(0, radius)) {
-    // TODO: Initialize the material pointer `mat_`.
-  }
+  Sphere(const Point3& center, const double radius, std::shared_ptr<Material> mat)
+      : center_(center), radius_(std::fmax(0, radius)), mat_(std::move(mat)) {}
 
   auto Hit(const Ray& r, const Interval& ray_t, HitRecord& rec) const -> bool override {
     const Vec3 oc = center_ - r.Origin();

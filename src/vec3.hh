@@ -41,6 +41,12 @@ class Vec3 {
     return (e_[0] * e_[0]) + (e_[1] * e_[1]) + (e_[2] * e_[2]);
   }
 
+  [[nodiscard]] auto NearZero() const -> bool {
+    // Return true if the vector is close to zero in all dimensions.
+    const double s = 1e-8;
+    return (std::fabs(e_[0]) < s) && (std::fabs(e_[1]) < s) && (std::fabs(e_[2]) < s);
+  }
+
   [[nodiscard]] static auto Random() -> Vec3 {
     return {RandomDouble(), RandomDouble(), RandomDouble()};
   }
@@ -109,3 +115,5 @@ inline auto RandomOnHemisphere(const Vec3& normal) -> Vec3 {
   }
   return -on_unit_hemisphere;
 }
+
+inline auto Reflect(const Vec3& v, const Vec3& n) -> Vec3 { return v - 2 * Dot(v, n) * n; }

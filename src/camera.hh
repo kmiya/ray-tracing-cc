@@ -6,6 +6,7 @@
 #include "color.hh"
 #include "common.hh"
 #include "hittable.hh"
+#include "material.hh"
 #include "ray.hh"
 #include "vec3.hh"
 
@@ -71,8 +72,12 @@ class Camera {
 
     HitRecord rec;
     if (world.Hit(r, Interval(0.001, kInfinity), rec)) {
-      const Vec3 direction = rec.Normal() + RandomUnitVector();
-      return 0.5 * RayColor(Ray(rec.P(), direction), depth - 1, world);
+      Ray scattered;
+      Color attenuation;
+      if (rec.Mat()->Scatter(r, rec, attenuation, scattered)) {
+        return attenuation * RayColor(scattered, depth - 1, world);
+      }
+      return {0, 0, 0};
     }
     const Vec3 unit_direction = UnitVector(r.Direction());
     const double a = 0.5 * (unit_direction.Y() + 1.0);
