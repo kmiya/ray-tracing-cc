@@ -78,7 +78,7 @@ class Dielectric : public Material {
     const bool cannot_refract = ri * sin_theta > 1.0;
     Vec3 direction;
 
-    if (cannot_refract) {
+    if (cannot_refract || Reflectance(cos_theta, ri) > RandomDouble()) {
       direction = Reflect(unit_direction, rec.Normal());
     } else {
       direction = Refract(unit_direction, rec.Normal(), ri);
@@ -92,4 +92,12 @@ class Dielectric : public Material {
   // Refractive index in vacuum or air, or the ratio of the material's refractive index over
   // the refractive index of the enclosing media
   double refraction_index_;
+
+  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+  static auto Reflectance(double cosine, double refraction_index) -> double {
+    // Use Schlick's approximation
+    double r0 = (1 - refraction_index) / (1 + refraction_index);
+    r0 = r0 * r0;
+    return r0 + ((1 - r0) * std::pow((1 - cosine), 5));
+  }
 };
