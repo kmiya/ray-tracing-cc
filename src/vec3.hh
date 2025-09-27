@@ -117,3 +117,10 @@ inline auto RandomOnHemisphere(const Vec3& normal) -> Vec3 {
 }
 
 inline auto Reflect(const Vec3& v, const Vec3& n) -> Vec3 { return v - 2 * Dot(v, n) * n; }
+
+inline auto Refract(const Vec3& uv, const Vec3& n, double eta_i_over_eta_t) -> Vec3 {
+  const auto cos_theta = std::fmin(Dot(-uv, n), 1.0);
+  const Vec3 r_out_perp = eta_i_over_eta_t * (uv + cos_theta * n);
+  const Vec3 r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.LengthSquared())) * n;
+  return r_out_perp + r_out_parallel;
+}
