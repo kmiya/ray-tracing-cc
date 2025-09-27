@@ -70,10 +70,21 @@ class Dielectric : public Material {
       -> bool override {
     attenuation = Color(1.0, 1.0, 1.0);
     const double ri = rec.FrontFace() ? (1.0 / refraction_index_) : refraction_index_;
-    const Vec3 unit_direction = UnitVector(r_in.Direction());
-    const Vec3 refracted = Refract(unit_direction, rec.Normal(), ri);
 
-    scattered = Ray(rec.P(), refracted);
+    const Vec3 unit_direction = UnitVector(r_in.Direction());
+    const double cos_theta = std::fmin(Dot(-unit_direction, rec.Normal()), 1.0);
+    const double sin_theta = std::sqrt(1.0 - (cos_theta * cos_theta));
+
+    const bool cannot_refract = ri * sin_theta > 1.0;
+    Vec3 direction;
+
+    if (cannot_refract) {
+      direction = Reflect(unit_direction, rec.Normal());
+    } else {
+      direction = Refract(unit_direction, rec.Normal(), ri);
+    }
+
+    scattered = Ray(rec.P(), direction);
     return true;
   }
 
