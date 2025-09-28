@@ -38,23 +38,33 @@ class Camera {
   constexpr auto SetSamplePerPixel(int sample) -> void { samples_per_pixel_ = sample; }
   constexpr auto SetMaxDepth(int depth) -> void { max_depth_ = depth; }
   constexpr auto SetVFov(double degree) -> void { v_fov_ = degree; }
+  constexpr auto SetLookFrom(Point3 point) -> void { look_from_ = point; }
+  constexpr auto SetLookAt(Point3 point) -> void { look_at_ = point; }
+  constexpr auto SetVUp(Vec3 vec) -> void { v_up_ = vec; }
 
  private:
   auto Initialize() -> void {
     image_height_ = std::max(1, static_cast<int>(image_width_ / aspect_ratio_));
     pixel_samples_scale_ = 1.0 / samples_per_pixel_;
 
+    center_ = look_from_;
+
     // Determine viewport dimensions.
-    constexpr const double kFocalLength = 1.0;
+    const double focal_length = (look_from_ - look_at_).Length();
     const double theta = DegreeToRadians(v_fov_);
     const double h = std::tan(theta / 2);
-    const double viewport_height = 2 * h * kFocalLength;
+    const double viewport_height = 2 * h * focal_length;
     const double viewport_width =
         viewport_height * static_cast<double>(image_width_) / image_height_;
 
+    // Calculate the u,v,w unit basis vectors for the camera coordinate frame.
+    w_ = UnitVector(look_from_ - look_at_);
+    u_ = UnitVector(Cross(v_up_, w_));
+    v_ = Cross(w_, u_);
+
     // Calculate the vectors across the horizontal and down the vertical viewport edges.
-    const Vec3 viewport_u{viewport_width, 0, 0};
-    const Vec3 viewport_v{0, -viewport_height, 0};
+    const Vec3 viewport_u{viewport_width * u_};
+    const Vec3 viewport_v{viewport_height * -v_};
 
     // Calculate the horizontal and vertical delta vectors from pixel to pixel.
     pixel_delta_u_ = viewport_u / image_width_;
@@ -62,7 +72,7 @@ class Camera {
 
     // Calculate the location of the upper left pixel.
     const Vec3 viewport_upper_left =
-        center_ - Vec3(0, 0, kFocalLength) - viewport_u / 2 - viewport_v / 2;
+        center_ - (focal_length * w_) - viewport_u / 2 - viewport_v / 2;
     pixel00_loc_ = viewport_upper_left + 0.5 * (pixel_delta_u_ + pixel_delta_v_);
   }
 
@@ -108,11 +118,16 @@ class Camera {
   int samples_per_pixel_{10};
   int max_depth_{10};
   double pixel_samples_scale_{};  // Color scale factor for a sum of pixel samples
-  double v_fov_ = 90;             // Vertical view angle (field of view)
   int image_width_{100};
   int image_height_{};      // Rendered image height
   Point3 center_{0, 0, 0};  // Camera center
   Point3 pixel00_loc_;      // Location of pixel (0, 0)
   Vec3 pixel_delta_u_;      // Offset to pixel to the right
   Vec3 pixel_delta_v_;      // Offset to pixel below
+  Vec3 u_, v_, w_;          // Camera frame basis vectors
+
+  double v_fov_{90};                   // Vertical view angle (field of view)
+  Point3 look_from_{Point3(0, 0, 0)};  // Point camera is looking from
+  Point3 look_at_{Point3(0, 0, -1)};   // Point camera is looking at
+  Vec3 v_up_{Vec3(0, 1, 0)};           // Camera-relative "up" direction
 };
