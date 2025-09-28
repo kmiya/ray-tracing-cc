@@ -37,6 +37,7 @@ class Camera {
 
   constexpr auto SetSamplePerPixel(int sample) -> void { samples_per_pixel_ = sample; }
   constexpr auto SetMaxDepth(int depth) -> void { max_depth_ = depth; }
+  constexpr auto SetVFov(double degree) -> void { v_fov_ = degree; }
 
  private:
   auto Initialize() -> void {
@@ -45,13 +46,15 @@ class Camera {
 
     // Determine viewport dimensions.
     constexpr const double kFocalLength = 1.0;
-    constexpr const double kViewportHeight = 2.0;
+    const double theta = DegreeToRadians(v_fov_);
+    const double h = std::tan(theta / 2);
+    const double viewport_height = 2 * h * kFocalLength;
     const double viewport_width =
-        kViewportHeight * static_cast<double>(image_width_) / image_height_;
+        viewport_height * static_cast<double>(image_width_) / image_height_;
 
     // Calculate the vectors across the horizontal and down the vertical viewport edges.
     const Vec3 viewport_u{viewport_width, 0, 0};
-    const Vec3 viewport_v{0, -kViewportHeight, 0};
+    const Vec3 viewport_v{0, -viewport_height, 0};
 
     // Calculate the horizontal and vertical delta vectors from pixel to pixel.
     pixel_delta_u_ = viewport_u / image_width_;
@@ -105,6 +108,7 @@ class Camera {
   int samples_per_pixel_{10};
   int max_depth_{10};
   double pixel_samples_scale_{};  // Color scale factor for a sum of pixel samples
+  double v_fov_ = 90;             // Vertical view angle (field of view)
   int image_width_{100};
   int image_height_{};      // Rendered image height
   Point3 center_{0, 0, 0};  // Camera center
