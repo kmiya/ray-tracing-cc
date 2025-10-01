@@ -98,6 +98,15 @@ inline auto Cross(const Vec3& u, const Vec3& v) -> Vec3 {
 
 inline auto UnitVector(const Vec3& v) -> Vec3 { return v / v.Length(); }
 
+inline auto RandomInUnitDisk() -> Vec3 {
+  while (true) {
+    const auto p{Vec3(RandomDouble(-1, 1), RandomDouble(-1, 1), 0)};
+    if (p.LengthSquared() < 1) {
+      return p;
+    }
+  }
+}
+
 inline auto RandomUnitVector() -> Vec3 {
   while (true) {
     const Vec3 p = Vec3::Random(-1, 1);

@@ -34,5 +34,8 @@ auto main() -> int {
   cam.SetLookAt(Point3{0, 0, -1});
   cam.SetVUp(Vec3{0, 1, 0});
 
+  cam.SetDefocusAngle(10.0);
+  cam.SetFocusDist(3.4);
+
   cam.Render(world);
 }

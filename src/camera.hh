@@ -41,6 +41,8 @@ class Camera {
   constexpr auto SetLookFrom(Point3 point) -> void { look_from_ = point; }
   constexpr auto SetLookAt(Point3 point) -> void { look_at_ = point; }
   constexpr auto SetVUp(Vec3 vec) -> void { v_up_ = vec; }
+  constexpr auto SetDefocusAngle(double defocus_angle) -> void { defocus_angle_ = defocus_angle; }
+  constexpr auto SetFocusDist(double focus_dist) -> void { focus_dist_ = focus_dist; };
 
  private:
   auto Initialize() -> void {
@@ -50,10 +52,9 @@ class Camera {
     center_ = look_from_;
 
     // Determine viewport dimensions.
-    const double focal_length = (look_from_ - look_at_).Length();
     const double theta = DegreeToRadians(v_fov_);
     const double h = std::tan(theta / 2);
-    const double viewport_height = 2 * h * focal_length;
+    const double viewport_height = 2 * h * focus_dist_;
     const double viewport_width =
         viewport_height * static_cast<double>(image_width_) / image_height_;
 
@@ -71,9 +72,13 @@ class Camera {
     pixel_delta_v_ = viewport_v / image_height_;
 
     // Calculate the location of the upper left pixel.
-    const Vec3 viewport_upper_left =
-        center_ - (focal_length * w_) - viewport_u / 2 - viewport_v / 2;
+    const Vec3 viewport_upper_left = center_ - (focus_dist_ * w_) - viewport_u / 2 - viewport_v / 2;
     pixel00_loc_ = viewport_upper_left + 0.5 * (pixel_delta_u_ + pixel_delta_v_);
+
+    // Calculate the camera defocus disk basis vectors.
+    const double defocus_radius = focus_dist_ * std::tan(DegreeToRadians(defocus_angle_ / 2));
+    defocus_disk_u_ = u_ * defocus_radius;
+    defocus_disk_v_ = v_ * defocus_radius;
   }
 
   // NOLINTNEXTLINE(misc-no-recursion)
@@ -98,13 +103,13 @@ class Camera {
   }
 
   auto GetRay(int i, int j) -> Ray {
-    // Construct a camera ray originating from the origin and directed at randomly sampled
+    // Construct a camera ray originating from the defocus disk and directed at randomly sampled
     // point around the pixel location (i, j).
     const Vec3 offset = SampleSquare();
     const Vec3 pixel_sample =
         pixel00_loc_ + ((i + offset.X()) * pixel_delta_u_) + ((j + offset.Y()) * pixel_delta_v_);
 
-    const Vec3 ray_origin = center_;
+    const Vec3 ray_origin = (defocus_angle_ <= 0) ? center_ : DefocusDiskSample();
     const Vec3 ray_direction = pixel_sample - ray_origin;
     return {ray_origin, ray_direction};
   }
@@ -112,6 +117,12 @@ class Camera {
   [[nodiscard]] static auto SampleSquare() -> Vec3 {
     // Return the vector to a aa random point in the [-.5,-.5]-[+.5,+.5] unit square.
     return {RandomDouble() - 0.5, RandomDouble() - 0.5, 0};
+  }
+
+  [[nodiscard]] auto DefocusDiskSample() const -> Vec3 {
+    // Return a random point in the camera defocus disk.
+    const auto p = RandomInUnitDisk();
+    return center_ + (p[0] * defocus_disk_u_) + (p[1] * defocus_disk_v_);
   }
 
   double aspect_ratio_{1.0};
@@ -125,9 +136,14 @@ class Camera {
   Vec3 pixel_delta_u_;      // Offset to pixel to the right
   Vec3 pixel_delta_v_;      // Offset to pixel below
   Vec3 u_, v_, w_;          // Camera frame basis vectors
+  Vec3 defocus_disk_u_;     // Defocus disk horizontal radius
+  Vec3 defocus_disk_v_;     // Defocus disk vertical radius
 
   double v_fov_{90};                   // Vertical view angle (field of view)
   Point3 look_from_{Point3(0, 0, 0)};  // Point camera is looking from
   Point3 look_at_{Point3(0, 0, -1)};   // Point camera is looking at
   Vec3 v_up_{Vec3(0, 1, 0)};           // Camera-relative "up" direction
+
+  double defocus_angle_{0};  // Variation angle of rays through each pixel
+  double focus_dist_{10};    // Distance from camera lok_from point to plane of perfect focus
 };
