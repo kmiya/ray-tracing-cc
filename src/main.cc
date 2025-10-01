@@ -54,8 +54,8 @@ auto main() -> int {
 
   Camera cam;
   cam.SetAspectRatio(16.0 / 9.0);
-  cam.SetImageWidth(400);
-  cam.SetSamplePerPixel(100);
+  cam.SetImageWidth(1200);
+  cam.SetSamplePerPixel(500);
   cam.SetMaxDepth(50);
 
   cam.SetVFov(20);
@@ -66,5 +66,5 @@ auto main() -> int {
   cam.SetDefocusAngle(0.6);
   cam.SetFocusDist(10.0);
 
-  cam.Render(world);
+  cam.RenderParallel(world);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <future>
 #include <iostream>
 
 #include "color.hh"
@@ -26,6 +27,46 @@ class Camera {
           pixel_color += RayColor(r, max_depth_, world);
         }
         WriteColor(std::cout, pixel_samples_scale_ * pixel_color);
+      }
+    }
+    std::clog << "\rDone.                 \n";
+  }
+
+  auto RenderParallel(const Hittable& world) -> void {
+    Initialize();
+    std::clog << "Available Core: " << std::thread::hardware_concurrency() << "\n";
+    std::cout << "P3\n" << image_width_ << ' ' << image_height_ << "\n255\n";
+
+    std::vector<std::vector<Color>> pixels_height(image_height_);
+    std::vector<Color> pixels_width(image_width_);
+    std::vector<std::future<Color>> workers(image_width_);
+    auto worker_thread = [&](int t_i, int t_j) {
+      Color pixel_color(0, 0, 0);
+      for (int sample = 0; sample < samples_per_pixel_; sample++) {
+        const Ray r = GetRay(t_i, t_j);
+        pixel_color += RayColor(r, max_depth_, world);
+      }
+      return pixel_color;
+    };
+
+    for (int j = 0; j < image_height_; j++) {
+      std::clog << "\rScanlines remaining: " << (image_height_ - j) << ' ' << std::flush;
+      for (int i = 0; i < image_width_; i++) {
+        workers[i] = std::async(std::launch::async, worker_thread, i, j);
+      }
+
+      try {
+        for (int i = 0; i < image_width_; i++) {
+          pixels_width[i] = workers[i].get();
+        }
+      } catch (std::runtime_error& e) {
+        std::cerr << e.what() << "\n";
+      }
+      pixels_height[j] = pixels_width;
+    }
+    for (const auto& j : pixels_height) {
+      for (const auto& i : j) {
+        WriteColor(std::cout, pixel_samples_scale_ * i);
       }
     }
     std::clog << "\rDone.                 \n";
