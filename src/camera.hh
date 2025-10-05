@@ -34,11 +34,13 @@ class Camera {
 
   auto RenderParallel(const Hittable& world) -> void {
     Initialize();
-    std::clog << "Available Core: " << std::thread::hardware_concurrency() << "\n";
+    std::clog << "Available Cores: " << std::thread::hardware_concurrency() << "\n";
     std::cout << "P3\n" << image_width_ << ' ' << image_height_ << "\n255\n";
 
     std::vector<std::vector<Color>> pixels_height(image_height_);
     std::vector<Color> pixels_width(image_width_);
+
+    // Workers for calculating pixel colors
     std::vector<std::future<Color>> workers(image_width_);
     auto worker_thread = [&](int t_i, int t_j) {
       Color pixel_color(0, 0, 0);
@@ -51,10 +53,11 @@ class Camera {
 
     for (int j = 0; j < image_height_; j++) {
       std::clog << "\rScanlines remaining: " << (image_height_ - j) << ' ' << std::flush;
+      // Calculate each pixel colors in row
       for (int i = 0; i < image_width_; i++) {
         workers[i] = std::async(std::launch::async, worker_thread, i, j);
       }
-
+      // Wait for all workers
       try {
         for (int i = 0; i < image_width_; i++) {
           pixels_width[i] = workers[i].get();
@@ -64,6 +67,7 @@ class Camera {
       }
       pixels_height[j] = pixels_width;
     }
+    // Write out all pixes colors
     for (const auto& j : pixels_height) {
       for (const auto& i : j) {
         WriteColor(std::cout, pixel_samples_scale_ * i);
