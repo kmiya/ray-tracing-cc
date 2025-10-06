@@ -34,7 +34,7 @@ class Lambertian : public Material {
       scatter_direction = rec.Normal();
     }
 
-    scattered = Ray(rec.P(), scatter_direction);
+    scattered = Ray(rec.P(), scatter_direction, r_in.Time());
     attenuation = albedo_;
     return true;
   }
@@ -52,7 +52,7 @@ class Metal : public Material {
       -> bool override {
     Vec3 reflected = Reflect(r_in.Direction(), rec.Normal());
     reflected = UnitVector(reflected) + (fuzz_ * RandomUnitVector());
-    scattered = Ray(rec.P(), reflected);
+    scattered = Ray(rec.P(), reflected, r_in.Time());
     attenuation = albedo_;
     return Dot(scattered.Direction(), rec.Normal()) > 0;
   }
@@ -84,7 +84,7 @@ class Dielectric : public Material {
       direction = Refract(unit_direction, rec.Normal(), ri);
     }
 
-    scattered = Ray(rec.P(), direction);
+    scattered = Ray(rec.P(), direction, r_in.Time());
     return true;
   }
 

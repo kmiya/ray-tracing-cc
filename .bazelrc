@@ -27,8 +27,14 @@ build:ubsan --copt=-fsanitize=undefined
 build:ubsan --linkopt=-fsanitize=undefined
 build:ubsan --linkopt=-fsanitize-link-c++-runtime
 
+build:tsan --config=use_sanitizer
+build:tsan -c dbg
+build:tsan --copt=-fsanitize=thread
+build:tsan --linkopt=-fsanitize=thread
+
 build:tysan --config=use_sanitizer
 build:tysan --copt=-fsanitize=type
 build:tysan --linkopt=-fsanitize=type
+
 
 coverage --combined_report=lcov

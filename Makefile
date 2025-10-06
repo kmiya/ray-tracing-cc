@@ -7,7 +7,7 @@ debug:
 	bazel build -c dbg //...
 
 run:
-	bazel run rt -- $(ARGS)
+	bazel run -c opt rt -- $(ARGS)
 
 format:
 	bazel run //tools:format
@@ -31,6 +31,9 @@ msan:
 ubsan:
 	bazel build --config=ubsan //...
 
+tsan:
+	bazel build --config=tsan //...
+
 tysan:
 	bazel build --config=tysan //...
 
@@ -41,6 +44,9 @@ msan-run: msan
 	bazel run rt -- $(ARGS) > /dev/null
 
 ubsan-run: ubsan
+	bazel run rt -- $(ARGS) > /dev/null
+
+tsan-run: tsan
 	bazel run rt -- $(ARGS) > /dev/null
 
 tysan-run: tysan

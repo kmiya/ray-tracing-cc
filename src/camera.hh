@@ -156,7 +156,8 @@ class Camera {
 
     const Vec3 ray_origin = (defocus_angle_ <= 0) ? center_ : DefocusDiskSample();
     const Vec3 ray_direction = pixel_sample - ray_origin;
-    return {ray_origin, ray_direction};
+    const double ray_time = RandomDouble();
+    return {ray_origin, ray_direction, ray_time};
   }
 
   [[nodiscard]] static auto SampleSquare() -> Vec3 {
