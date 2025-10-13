@@ -1,5 +1,6 @@
 #pragma once
 
+#include "aabb.hh"
 #include "interval.hh"
 #include "ray.hh"
 #include "vec3.hh"
@@ -47,4 +48,6 @@ class Hittable {
 
   virtual ~Hittable() = default;
   virtual auto Hit(const Ray& r, const Interval& ray_t, HitRecord& rec) const -> bool = 0;
+
+  virtual auto BoundingBox() const -> AABB = 0;
 };

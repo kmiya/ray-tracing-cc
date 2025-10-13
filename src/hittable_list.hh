@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "aabb.hh"
 #include "hittable.hh"
 #include "ray.hh"
 
@@ -15,7 +16,10 @@ class HittableList : public Hittable {
 
   auto Clear() -> void { objects_.clear(); }
 
-  auto Add(const std::shared_ptr<Hittable>& object) -> void { objects_.push_back(object); }
+  auto Add(const std::shared_ptr<Hittable>& object) -> void {
+    objects_.push_back(object);
+    bbox_ = AABB(bbox_, object->BoundingBox());
+  }
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   auto Hit(const Ray& r, const Interval& ray_t, HitRecord& rec) const -> bool override {
@@ -33,6 +37,9 @@ class HittableList : public Hittable {
     return hit_anything;
   }
 
+  [[nodiscard]] auto BoundingBox() const -> AABB override { return bbox_; }
+
  private:
   std::vector<std::shared_ptr<Hittable>> objects_;
+  AABB bbox_;
 };

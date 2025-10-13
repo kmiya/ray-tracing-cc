@@ -10,14 +10,20 @@ class Sphere : public Hittable {
  public:
   // Stationary Sphere
   Sphere(const Point3& static_center, const double radius, std::shared_ptr<Material> mat)
-      : center_(static_center, Vec3(0, 0, 0)),
-        radius_(std::fmax(0, radius)),
-        mat_(std::move(mat)) {}
+      : center_(static_center, Vec3(0, 0, 0)), radius_(std::fmax(0, radius)), mat_(std::move(mat)) {
+    const auto r_vec = Vec3(radius, radius, radius);
+    bbox_ = AABB(static_center - r_vec, static_center + r_vec);
+  }
 
   // Moving Sphere
   Sphere(const Point3& center1, const Point3& center2, const double radius,
          std::shared_ptr<Material> mat)
-      : center_(center1, center2 - center1), radius_(std::fmax(0, radius)), mat_(std::move(mat)) {}
+      : center_(center1, center2 - center1), radius_(std::fmax(0, radius)), mat_(std::move(mat)) {
+    const auto r_vec = Vec3(radius, radius, radius);
+    const AABB box1(center_.At(0) - r_vec, center_.At(0) + r_vec);
+    const AABB box2(center_.At(1) - r_vec, center_.At(1) + r_vec);
+    bbox_ = AABB(box1, box2);
+  }
 
   auto Hit(const Ray& r, const Interval& ray_t, HitRecord& rec) const -> bool override {
     const Point3 current_center = center_.At(r.Time());
@@ -47,8 +53,11 @@ class Sphere : public Hittable {
     return true;
   }
 
+  auto BoundingBox() const -> AABB override { return bbox_; }
+
  private:
   Ray center_;
   double radius_;
   std::shared_ptr<Material> mat_;
+  AABB bbox_;
 };

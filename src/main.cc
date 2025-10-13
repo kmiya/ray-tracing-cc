@@ -56,7 +56,7 @@ auto main() -> int {
   Camera cam;
   cam.SetAspectRatio(16.0 / 9.0);
   cam.SetImageWidth(400);
-  cam.SetSamplePerPixel(20);
+  cam.SetSamplePerPixel(100);
   cam.SetMaxDepth(50);
 
   cam.SetVFov(20);
