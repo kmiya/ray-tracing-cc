@@ -41,13 +41,13 @@ class HitRecord {
 class Hittable {
  public:
   Hittable() = default;
-  Hittable(const Hittable&) = delete;
-  auto operator=(const Hittable&) -> Hittable& = delete;
+  Hittable(const Hittable&) = default;
+  auto operator=(const Hittable&) -> Hittable& = default;
   Hittable(Hittable&&) = delete;
   auto operator=(const Hittable&&) -> Hittable& = delete;
 
   virtual ~Hittable() = default;
   virtual auto Hit(const Ray& r, const Interval& ray_t, HitRecord& rec) const -> bool = 0;
 
-  virtual auto BoundingBox() const -> AABB = 0;
+  [[nodiscard]] virtual auto BoundingBox() const -> AABB = 0;
 };

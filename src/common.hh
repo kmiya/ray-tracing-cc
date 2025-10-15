@@ -19,3 +19,8 @@ inline auto RandomDouble(double min, double max) -> double {
   // Returns a random real in [min,max).
   return min + ((max - min) * RandomDouble());
 }
+
+inline auto RandomInt(int min, int max) -> int {
+  // Returns a random integer in [min, max].
+  return static_cast<int>(RandomDouble(min, max + 1));
+}

@@ -8,11 +8,9 @@ class Interval {
   Interval(double min, double max) : min_(min), max_(max) {}
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  Interval(const Interval& a, const Interval& b) {
-    // Create the interval tightly enclosing the two input intervals.
-    min_ = a.Min() <= b.Min() ? a.Min() : b.Min();
-    max_ = a.Max() >= b.Max() ? a.Max() : b.Max();
-  }
+  Interval(const Interval& a, const Interval& b)
+      : min_(a.Min() <= b.Min() ? a.Min() : b.Min()),
+        max_(a.Max() >= b.Max() ? a.Max() : b.Max()) {}
 
   [[nodiscard]] auto Min() const -> double { return min_; }
   [[nodiscard]] auto Max() const -> double { return max_; }
@@ -24,8 +22,8 @@ class Interval {
     const double padding = delta / 2;
     return {min_ - padding, max_ + padding};
   }
-  [[nodiscard]] auto SetMin(double min) -> double { min_ = min; }
-  [[nodiscard]] auto SetMax(double max) -> double { max_ = max; }
+  auto SetMin(double min) -> void { min_ = min; }
+  auto SetMax(double max) -> void { max_ = max; }
 
   static auto Empty() -> const Interval& {
     static const Interval kEmptyInterval(+kInfinity, -kInfinity);

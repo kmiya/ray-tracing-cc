@@ -12,7 +12,7 @@ class HittableList : public Hittable {
   HittableList() = default;
   explicit HittableList(const std::shared_ptr<Hittable>& object) { Add(object); }
 
-  auto Objects() -> std::vector<std::shared_ptr<Hittable>> { return objects_; }
+  auto Objects() -> std::vector<std::shared_ptr<Hittable>>& { return objects_; }
 
   auto Clear() -> void { objects_.clear(); }
 

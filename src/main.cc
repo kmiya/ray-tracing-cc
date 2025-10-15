@@ -1,5 +1,6 @@
 #include <memory>
 
+#include "bvh.hh"
 #include "camera.hh"
 #include "common.hh"
 #include "hittable_list.hh"
@@ -52,6 +53,8 @@ auto main() -> int {
 
   const auto material3{std::make_shared<Metal>(Color(0.7, 0.6, 0.5), 0.0)};
   world.Add(std::make_shared<Sphere>(Point3(4, 1, 0), 1.0, material3));
+
+  world = HittableList(std::make_shared<BVHNode>(world));
 
   Camera cam;
   cam.SetAspectRatio(16.0 / 9.0);

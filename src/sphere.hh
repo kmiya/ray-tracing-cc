@@ -53,7 +53,7 @@ class Sphere : public Hittable {
     return true;
   }
 
-  auto BoundingBox() const -> AABB override { return bbox_; }
+  [[nodiscard]] auto BoundingBox() const -> AABB override { return bbox_; }
 
  private:
   Ray center_;
