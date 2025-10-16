@@ -69,9 +69,27 @@ class AABB {
     return true;
   }
 
+  [[nodiscard]] auto LongestAxis() const {
+    // Returns the index of the longest axis of the bounding box.
+    if (x_.Size() > y_.Size()) {
+      return x_.Size() > z_.Size() ? 0 : 2;
+    }
+    return y_.Size() > z_.Size() ? 1 : 2;
+  }
+
   [[nodiscard]] auto X() const -> Interval { return x_; }
   [[nodiscard]] auto Y() const -> Interval { return y_; }
   [[nodiscard]] auto Z() const -> Interval { return z_; }
+
+  static auto Empty() -> const AABB& {
+    static const AABB kInstance(Interval::Empty(), Interval::Empty(), Interval::Empty());
+    return kInstance;
+  }
+
+  static auto Universe() -> const AABB& {
+    static const AABB kInstance(Interval::Universe(), Interval::Universe(), Interval::Universe());
+    return kInstance;
+  }
 
  private:
   Interval x_, y_, z_;

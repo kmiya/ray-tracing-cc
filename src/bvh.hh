@@ -22,8 +22,14 @@ class BVHNode : public Hittable {
   }
 
   // NOLINTNEXTLINE(misc-no-recursion)
-  BVHNode(std::vector<std::shared_ptr<Hittable>>& objects, size_t start, size_t end) {
-    const int axis = RandomInt(0, 2);
+  BVHNode(std::vector<std::shared_ptr<Hittable>>& objects, size_t start, size_t end)
+      : bbox_(AABB::Empty()) {
+    // Build the bounding box of the span of source objects.
+    for (size_t object_index = start; object_index < end; object_index++) {
+      bbox_ = AABB(bbox_, objects[object_index]->BoundingBox());
+    }
+    const int axis = bbox_.LongestAxis();
+
     // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     const auto comparator = (axis == 0) ? BoxXCompare : (axis == 1) ? BoxYCompare : BoxZCompare;
 
@@ -40,7 +46,6 @@ class BVHNode : public Hittable {
       left_ = std::make_shared<BVHNode>(objects, start, mid);
       right_ = std::make_shared<BVHNode>(objects, mid, end);
     }
-    bbox_ = AABB(left_->BoundingBox(), right_->BoundingBox());
   }
 
   auto Hit(const Ray& r, const Interval& ray_t, HitRecord& rec) const -> bool override {
