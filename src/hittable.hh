@@ -34,6 +34,8 @@ class HitRecord {
   Point3 p_;
   Vec3 normal_;
   double t_{};
+  double u_{};
+  double v_{};
   bool front_face_{};
   std::shared_ptr<Material> mat_;
 };
